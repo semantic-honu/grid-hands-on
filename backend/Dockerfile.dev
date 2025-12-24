@@ -1,0 +1,22 @@
+# 開発環境用
+FROM maven:3.8.7-eclipse-temurin-17
+WORKDIR /backend
+
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+# # CodeQL の展開に必要な unzip と curl を追加
+# RUN apt-get update && apt-get install -y unzip curl \
+#     && rm -rf /var/lib/apt/lists/*
+
+# # CodeQL CLIのインストール
+# RUN curl -LO https://github.com/github/codeql-cli-binaries/releases/download/v2.23.8/codeql-linux64.zip \
+#     && unzip codeql-linux64.zip -d /opt \
+#     && ln -s /opt/codeql/codeql /usr/local/bin/codeql
+
+# # クエリライブラリを配置するディレクトリを作成
+# RUN mkdir -p /opt/codeql-libraries
+# # 標準ライブラリをクローン（または特定バージョンをダウンロード）
+# RUN git clone --depth 1 https://github.com/github/codeql.git /opt/codeql-libraries/codeql-repo
+
+CMD ["mvn", "spring-boot:run"]
