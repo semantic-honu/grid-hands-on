@@ -6,7 +6,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,11 +15,9 @@ import com.semahonu.backend.service.BookService;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.hamcrest.Matchers.hasItem;
 
 @WebMvcTest({ BookController.class, GlobalExceptionHandler.class })
-@WithMockUser
 public class BookControllerTest {
 
     @Autowired
@@ -40,7 +37,7 @@ public class BookControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/books").with(csrf())
+        mockMvc.perform(post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
                 .andExpect(status().isBadRequest())
@@ -62,7 +59,7 @@ public class BookControllerTest {
 
     // 共通化メソッド
     private void performAndCheck(String json, String expectedField, String expectedMessage) throws Exception {
-        mockMvc.perform(post("/api/books").with(csrf())
+        mockMvc.perform(post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isBadRequest())
