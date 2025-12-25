@@ -22,5 +22,5 @@ jobs:
           cache: maven
 
       - name: Run Checkstyle
-        run: mvn checkstyle:check
+        run: mvn -B checkstyle:check
         working-directory: ./backend
