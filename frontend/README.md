@@ -19,6 +19,9 @@ docker run --rm -v ${PWD}:/app -w /app node:20-alpine npm install react-error-bo
 ## Zustand INSTALL
 docker run --rm -v ${PWD}:/app -w /app node:20-alpine npm install zustand
 
+## Notistack INSTALL
+docker run --rm -v ${PWD}:/app -w /app node:20-alpine npm install notistack
+
 my-app/
 ├── public/                # 静的ファイル (favicon, index.html など)
 ├── src/

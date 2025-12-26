@@ -2,16 +2,12 @@ import { useState, useEffect } from "react";
 import { Tooltip } from "@mui/material";
 import { createBookApi, deleteBookApi, updateBookApi } from "../api/bookApi";
 import GenericGrid from "../components/GenericGrid";
-import { useNotificationStore } from "../stores/useNotificationStore";
 import { bookColumnsSchema } from "../constants/bookSchema";
 import { handlePromiseAll } from "../utils/promiseUtils";
 import useLoadBooks from "../hooks/useLoadBooks";
 import { createOrUpdateBooks } from "../utils/bookUtils";
 
 const BookPage = () => {
-  const showNotification = useNotificationStore(
-    (state) => state.showNotification
-  );
   const [rowErrors, setRowErrors] = useState({}); // { [rowId]: { [field]: 'message' } }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -76,23 +72,6 @@ const BookPage = () => {
   const useSaveData = async () => {
     document.activeElement?.blur(); // 編集中セルのフォーカスを外す
 
-    const newRows = books.filter((b) => b.isNew);
-    removeRowError(newRows);
-    try {
-      await createOrUpdateBooks(
-        setError,
-        setLoading,
-        newRows,
-        createBookApi,
-        showNotification,
-        setRowErrors,
-        books,
-        setBooks
-      );
-    } catch (error) {
-      setError(error);
-    }
-
     const UpdateRows = books.filter((b) => b.isUpdate);
     removeRowError(UpdateRows);
     try {
@@ -101,7 +80,22 @@ const BookPage = () => {
         setLoading,
         UpdateRows,
         updateBookApi,
-        showNotification,
+        setRowErrors,
+        books,
+        setBooks
+      );
+    } catch (error) {
+      setError(error);
+    }
+
+    const newRows = books.filter((b) => b.isNew);
+    removeRowError(newRows);
+    try {
+      await createOrUpdateBooks(
+        setError,
+        setLoading,
+        newRows,
+        createBookApi,
         setRowErrors,
         books,
         setBooks
@@ -133,7 +127,6 @@ const BookPage = () => {
         setLoading,
         rows: rowsToDelete, // オブジェクトの配列を渡すように修正
         crudFunction: deleteBookApi,
-        showNotification,
       });
 
       //成功した行を削除

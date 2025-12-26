@@ -1,26 +1,27 @@
+import snackbarUtils from "./snackbarUtils";
+
 export const handlePromiseAll = ({
   setError,
   setLoading,
   rows,
   crudFunction,
-  showNotification,
 }) => {
   setLoading(true);
-  
+
   return Promise.allSettled(rows.map((row) => crudFunction(row)))
     .then((results) => {
       const successfulResults = results
         .map((result, index) => ({ result, row: rows[index] }))
         .filter(({ result }) => result.status === "fulfilled");
-      if (showNotification && successfulResults.length > 0) {
-        showNotification(`${successfulResults.length}件の処理に成功しました。`);
+      if (successfulResults.length > 0) {
+        snackbarUtils.success(`${successfulResults.length}件の${crudFunction.displayName}に成功しました。`)
       }
       const failedResults = results
         .map((result, index) => ({ result, row: rows[index] }))
         .filter(({ result }) => result.status === "rejected");
 
-      if (showNotification && failedResults.length > 0) {
-        showNotification(`${failedResults.length}件の処理に失敗しました。`);
+      if (failedResults.length > 0) {
+        snackbarUtils.error(`${failedResults.length}件の${crudFunction.displayName}に失敗しました。`)
       }
 
       return { successfulResults, failedResults };

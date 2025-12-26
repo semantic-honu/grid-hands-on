@@ -1,22 +1,19 @@
 import { handlePromiseAll } from "./promiseUtils.js";
+import snackbarUtils from "./snackbarUtils";
 
 export const createOrUpdateBooks = async (setError,
     setLoading,
     rows,
     crudFunction,
-    showNotification,
     setRowErrors,
     books,
     setBooks
 ) => {
-
     try {
         const { successfulResults, failedResults } = await handlePromiseAll({
-            setError,
             setLoading,
             rows,
             crudFunction,
-            showNotification,
         });
 
         // 失敗処理
@@ -33,10 +30,9 @@ export const createOrUpdateBooks = async (setError,
                     if (errorDetail && errorDetail.field) {
                         rowSpecificErrors[errorDetail.field] = errorDetail.message;
                     } else {
-                        showNotification(
+                        snackbarUtils.error(
                             `行ID ${row.id} のエラー: ${errorDetail?.message || "不明なエラー"
-                            }`,
-                            "error"
+                            }`
                         );
                     }
                 });
@@ -70,4 +66,5 @@ export const createOrUpdateBooks = async (setError,
         // usePromiseAll内でsetErrorが呼ばれるが、ここで追加のエラーハンドリングも可能
         setError(error);
     }
+
 };

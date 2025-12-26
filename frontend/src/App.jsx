@@ -19,7 +19,6 @@ import BookPage from "./pages/BookPage";
 import AuthorsPage from "./pages/AuthorsPage";
 import Footer from "./components/Footer";
 import ErrorFallback from "./components/ErrorFallback";
-import Notification from "./components/Notification";
 import logo from "./assets/react.svg";
 import { LogoDevOutlined } from "@mui/icons-material";
 
@@ -100,8 +99,6 @@ function App() {
             </ErrorBoundary>
           </Box>
         </Box>
-        {/* <Footer /> */}
-        <Notification />
       </ThemeProvider>
     </BrowserRouter>
   );
