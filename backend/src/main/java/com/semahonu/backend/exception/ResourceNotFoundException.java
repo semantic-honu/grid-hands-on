@@ -14,5 +14,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return new ResourceNotFoundException("Book not found with id: " + id);
     }
 
-
+    public static ResourceNotFoundException forReview(Long id) {
+        return new ResourceNotFoundException("Review not found with id: " + id);
+    }
 }

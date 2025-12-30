@@ -14,14 +14,14 @@ export const handlePromiseAll = ({
         .map((result, index) => ({ result, row: rows[index] }))
         .filter(({ result }) => result.status === "fulfilled");
       if (successfulResults.length > 0) {
-        snackbarUtils.success(`${successfulResults.length}件の${crudFunction.displayName}に成功しました。`)
+        snackbarUtils.success(`${successfulResults.length}件の${crudFunction.displayName}に成功しました。`);
       }
       const failedResults = results
         .map((result, index) => ({ result, row: rows[index] }))
         .filter(({ result }) => result.status === "rejected");
 
       if (failedResults.length > 0) {
-        snackbarUtils.error(`${failedResults.length}件の${crudFunction.displayName}に失敗しました。`)
+        snackbarUtils.error(`${failedResults.length}件の${crudFunction.displayName}に失敗しました。`);
       }
 
       return { successfulResults, failedResults };

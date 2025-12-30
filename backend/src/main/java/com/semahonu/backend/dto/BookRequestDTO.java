@@ -12,9 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BookRequestDTO {
 
-    // @Pattern(regexp = "^[0-9]+$")
-    // private Long id;
-
     @NotBlank(message = "タイトルがいります")
     private String title;
 

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -28,15 +27,6 @@ public class GlobalExceptionHandler {
                                                 error.getField()))
                                 .collect(Collectors.toList());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponses);
-        }
-
-        // データ重複違反例外ハンドラー
-        @ExceptionHandler(DataIntegrityViolationException.class)
-        public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-                ErrorResponse errorResponse = new ErrorResponsesWithField(
-                                "同じタイトルと著者の組み合わせは既に存在します",
-                                "title");
-                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
         }
 
         // リソース未発見例外ハンドラー

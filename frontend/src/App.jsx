@@ -17,10 +17,8 @@ import { theme } from "./theme/theme";
 import MenuBar from "./components/MenuBar";
 import BookPage from "./pages/BookPage";
 import AuthorsPage from "./pages/AuthorsPage";
-import Footer from "./components/Footer";
 import ErrorFallback from "./components/ErrorFallback";
 import logo from "./assets/react.svg";
-import { LogoDevOutlined } from "@mui/icons-material";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);

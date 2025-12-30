@@ -2,8 +2,11 @@ package com.semahonu.backend.controller;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.semahonu.backend.dto.BookRequestDTO;
+import com.semahonu.backend.exception.ErrorResponse;
+import com.semahonu.backend.exception.ErrorResponsesWithField;
 import com.semahonu.backend.model.Book;
 import com.semahonu.backend.service.BookService;
 
@@ -64,5 +69,14 @@ public class BookController {
     public Book updateBook(@PathVariable Long id, @Valid @RequestBody BookRequestDTO requestDTO) {
         return bookService.updateBook(id, requestDTO);
 
+    }
+
+    // データ重複違反例外ハンドラー
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        ErrorResponse errorResponse = new ErrorResponsesWithField(
+                "同じタイトルと著者の組み合わせは既に存在します",
+                "title");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 }
