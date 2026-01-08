@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { Tooltip } from "@mui/material";
+import { useState, useEffect, useMemo } from "react";
 import { createBookApi, deleteBookApi, updateBookApi } from "../api/bookApi";
 import GenericGrid from "../components/GenericGrid";
 import { bookColumnsSchema } from "../constants/bookSchema";
 import { handlePromiseAll } from "../utils/promiseUtils";
 import useLoadBooks from "../hooks/useLoadBooks";
 import { createOrUpdateBooks } from "../utils/bookUtils";
+import { createGridColumns } from "../utils/gridUtils";
 
 const BookPage = () => {
   const [rowErrors, setRowErrors] = useState({}); // { [rowId]: { [field]: 'message' } }
@@ -21,40 +21,10 @@ const BookPage = () => {
     setError,
   }); // カスタムフックの呼び出し
 
-  const columns = bookColumnsSchema.map((col) => ({
-    ...col,
-    renderCell: (params) => {
-      const errorMsg = rowErrors[params.id]?.[params.field];
-      let displayValue = params.value ?? "";
-      if (col.type === "date" && displayValue) {
-        displayValue = new Date(displayValue).toLocaleDateString("ja-JP");
-      }
-      return (
-        <Tooltip title={errorMsg || ""} arrow disableHoverListener={!errorMsg}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-              height: "100%",
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: errorMsg ? "#ffebee" : "transparent", // 薄い赤
-                color: errorMsg ? "#d32f2f" : "inherit", // 濃い赤
-                padding: errorMsg ? "2px 8px" : "0", // エラーの時だけ少し内側を塗る
-                borderRadius: "4px", // 角を少し丸くする
-                fontSize: "0.875rem",
-              }}
-            >
-              {displayValue}
-            </span>
-          </div>
-        </Tooltip>
-      );
-    },
-  }));
+  const columns = useMemo(
+    () => createGridColumns(bookColumnsSchema, rowErrors),
+    [rowErrors]
+  );
 
   // 初回ロード
   useEffect(() => {

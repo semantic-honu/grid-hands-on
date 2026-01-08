@@ -12,7 +12,16 @@ function CustomErrorOverlay({ error }) {
 }
 
 // DataGrid に渡したい props を `...rest` でまとめて受け取る
-const GenericGrid = ({ rows, columns, error, loading, setRows, ...rest }) => {
+const GenericGrid = ({
+  rows,
+  columns,
+  error,
+  loading,
+  setRows,
+  gridHeight = "calc(100vh - 120px)",
+  gridWidth = "calc(100vw - 60px)",
+  ...rest
+}) => {
   const [deleteMode, setDeleteMode] = useState(false); //削除モードの状態
 
   return (
@@ -22,8 +31,10 @@ const GenericGrid = ({ rows, columns, error, loading, setRows, ...rest }) => {
       )}
       <div
         style={{
-          height: "calc(100vh - 120px)",
-          width: `calc(100vw - 60px)`,
+          display: "flex",
+          flexDirection: "column",
+          height: gridHeight,
+          width: gridWidth,
         }}
       >
         <StackButton
@@ -35,45 +46,47 @@ const GenericGrid = ({ rows, columns, error, loading, setRows, ...rest }) => {
           deleteMode={deleteMode}
           setDeleteMode={setDeleteMode}
         />
-        <DataGrid
-          rows={rows || []} // rowsが未定義の場合のエラーを防ぐ
-          columns={columns}
-          loading={loading}
-          editMode="row"
-          error={error} // error は DataGrid 自身も使うので渡す
-          // 削除時のチェックボックス処理
-          checkboxSelection={deleteMode}
-          onRowSelectionModelChange={(ids) => {
-            rest?.setSelectedIds(ids);
-          }}
-          //行更新時の処理
-          processRowUpdate={(newRow, oldRow) => {
-            // 1. 既存行なら更新フラグを立てる
-            if (!oldRow.isNew) {
-              newRow.isUpdate = true;
-            }
+        <div style={{ flex: 1, width: "100%" }}>
+          <DataGrid
+            rows={rows || []} // rowsが未定義の場合のエラーを防ぐ
+            columns={columns}
+            loading={loading}
+            editMode="row"
+            error={error} // error は DataGrid 自身も使うので渡す
+            // 削除時のチェックボックス処理
+            checkboxSelection={deleteMode}
+            onRowSelectionModelChange={(ids) => {
+              rest?.setSelectedIds(ids);
+            }}
+            //行更新時の処理
+            processRowUpdate={(newRow, oldRow) => {
+              // 1. 既存行なら更新フラグを立てる
+              if (!oldRow.isNew) {
+                newRow.isUpdate = true;
+              }
 
-            // 2. ステートに反映
-            setRows((prev) =>
-              prev.map((r) => (r.id === oldRow.id ? newRow : r))
-            );
+              // 2. ステートに反映
+              setRows((prev) =>
+                prev.map((r) => (r.id === oldRow.id ? newRow : r))
+              );
 
-            return newRow;
-          }}
-          components={{
-            ErrorOverlay: () => <CustomErrorOverlay error={error} />,
-          }}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          sx={{
-            "& .MuiDataGrid-columnHeaders": {
-              "--DataGrid-t-header-background-base": "#f0f0f0",
-              height: "50px",
-              color: "var(--modern-black)",
-            },
-          }}
-          {...rest} // App.jsxから渡された onRowClick などがここに展開される
-        />
+              return newRow;
+            }}
+            components={{
+              ErrorOverlay: () => <CustomErrorOverlay error={error} />,
+            }}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            sx={{
+              "& .MuiDataGrid-columnHeaders": {
+                "--DataGrid-t-header-background-base": "#f0f0f0",
+                height: "50px",
+                color: "var(--modern-black)",
+              },
+            }}
+            {...rest} // App.jsxから渡された onRowClick などがここに展開される
+          />
+        </div>
       </div>
     </>
   );

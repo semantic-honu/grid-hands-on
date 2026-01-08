@@ -12,7 +12,8 @@ const StackButton = ({
   setDeleteMode,
 }) => {
   const addRow = () => {
-    const newRow = { ...bookNewRowSchema, id: `new-${Date.now()}` };
+    // const newRow = { ...bookNewRowSchema, id: `new-${Date.now()}` };
+    const newRow = { id: `new-${Date.now()}` ,isNew: true,}; // 新規フラグ（保存時に判定用
     setRows([newRow, ...rows]);
   };
 

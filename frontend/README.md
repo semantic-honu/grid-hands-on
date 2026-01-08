@@ -22,6 +22,9 @@ docker run --rm -v ${PWD}:/app -w /app node:20-alpine npm install zustand
 ## Notistack INSTALL
 docker run --rm -v ${PWD}:/app -w /app node:20-alpine npm install notistack
 
+## Tanstack INSTALL
+docker run --rm -v ${PWD}:/app -w /app node:20-alpine npm install @tanstack/react-query
+
 my-app/
 ├── public/                # 静的ファイル (favicon, index.html など)
 ├── src/

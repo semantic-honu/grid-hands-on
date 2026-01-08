@@ -15,10 +15,10 @@ const columns = [
   { field: "genre", headerName: "得意ジャンル", width: 180 },
 ];
 
-const AuthorsPage = () => {
+const AuthorPage = () => {
   const [authors, setAuthors] = useState(initialAuthors);
 
   return <GenericGrid rows={authors} columns={columns} setRows={setAuthors} />;
 };
 
-export default AuthorsPage;
+export default AuthorPage;

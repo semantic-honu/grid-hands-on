@@ -16,9 +16,10 @@ import { ErrorBoundary } from "react-error-boundary";
 import { theme } from "./theme/theme";
 import MenuBar from "./components/MenuBar";
 import BookPage from "./pages/BookPage";
-import AuthorsPage from "./pages/AuthorsPage";
+import AuthorPage from "./pages/AuthorPage";
 import ErrorFallback from "./components/ErrorFallback";
 import logo from "./assets/react.svg";
+import ReviewPage from "./pages/ReviewPage";
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,7 +92,8 @@ function App() {
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <Routes>
                 <Route path="/" element={<BookPage />} />
-                <Route path="/authors" element={<AuthorsPage />} />
+                <Route path="/authors" element={<AuthorPage />} />
+                <Route path="/reviews" element={<ReviewPage />} />
                 <Route path="*" element={<NotFound />} /> {/* 404ページ */}
               </Routes>
             </ErrorBoundary>

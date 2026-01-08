@@ -10,7 +10,8 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import StarIcon from "@mui/icons-material/Star";
-import CrueltyFreeTwoToneIcon from '@mui/icons-material/CrueltyFreeTwoTone';
+import CrueltyFreeTwoToneIcon from "@mui/icons-material/CrueltyFreeTwoTone";
+import AdbOutlinedIcon from '@mui/icons-material/AdbOutlined';
 
 export const drawerWidth = 240;
 
@@ -49,6 +50,14 @@ const MenuBar = ({ open, onClose }) => {
                   <StarIcon />
                 </ListItemIcon>
                 <ListItemText primary="作者" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="Review" disablePadding>
+              <ListItemButton component={Link} to="/reviews" onClick={onClose}>
+                <ListItemIcon>
+                  <AdbOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText primary="レビュー" />
               </ListItemButton>
             </ListItem>
           </List>
