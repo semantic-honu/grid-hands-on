@@ -53,6 +53,7 @@ const GenericGrid = ({
             loading={loading}
             editMode="row"
             error={error} // error は DataGrid 自身も使うので渡す
+            columnHeaderHeight={50} // ヘッダーの高さをプロパティで指定
             // 削除時のチェックボックス処理
             checkboxSelection={deleteMode}
             onRowSelectionModelChange={(ids) => {
@@ -78,10 +79,30 @@ const GenericGrid = ({
             pageSize={5}
             rowsPerPageOptions={[5]}
             sx={{
+              // ヘッダー全体の背景色
               "& .MuiDataGrid-columnHeaders": {
-                "--DataGrid-t-header-background-base": "#f0f0f0",
-                height: "50px",
+                backgroundColor: "#f0f0f0 !important",
+              },
+              // 各ヘッダーセルの背景色（これがないと白くなる場合がある）
+              "& .MuiDataGrid-columnHeader": {
+                backgroundColor: "#f0f0f0 !important",
                 color: "var(--modern-black)",
+              },
+              // データセルのテキストにだけ余白を付ける（レイアウトを崩さない安全な方法）
+              "& .MuiDataGrid-cell": {
+                paddingLeft: "16px !important",
+                paddingRight: "16px !important",
+              },
+              // ヘッダーのテキストにだけ余白を付ける
+              "& .MuiDataGrid-columnHeaderTitleContainer": {
+                paddingLeft: "8px !important",
+                paddingRight: "8px !important",
+              },
+              // チェックボックス列の余白を強制解除（ズレ防止の要）
+              "& .MuiDataGrid-columnHeader--checkbox, & .MuiDataGrid-cell--checkbox": {
+                padding: "0 !important",
+                width: "50px !important",
+                minWidth: "50px !important",
               },
             }}
             {...rest} // App.jsxから渡された onRowClick などがここに展開される
