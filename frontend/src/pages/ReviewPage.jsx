@@ -14,8 +14,8 @@ export const ReviewPage = () => {
     queryFn: async () => {
       return await fetchBooksApi();
     },
-    refetchOnWindowFocus: false, // フォーカス時の自動通信をオフ
-    retry: 1, // 失敗時の再試行回数を1回に抑える
+    refetchOnWindowFocus: false,
+    staleTime: 5000,
   });
 
   // スケルトン表示（読み込み中のプレースホルダー）
@@ -64,14 +64,16 @@ export const ReviewPage = () => {
           key={book.id}
           elevation={0}
           disableGutters
+          // 閉じている間はDOMから削除し、通信を発生させない
+          slotProps={{ transition: { unmountOnExit: true } }}
           sx={{
-            borderTop: '1px solid #e0e0e0', // Subtle top border for each accordion
-            mb: 2, // Margin bottom for spacing between accordions
+            borderTop: '1px solid #e0e0e0',
+            mb: 2,
             '&:last-of-type': {
-              borderBottom: '1px solid #e0e0e0', // Add bottom border to the last one
+              borderBottom: '1px solid #e0e0e0',
             },
-            borderRadius: '4px', // Slight rounded corners
-            overflow: 'hidden', // Ensures borders/shadows conform to rounded corners
+            borderRadius: '4px',
+            overflow: 'hidden',
           }}
         >
           <AccordionSummary
@@ -112,7 +114,8 @@ export const ReviewPage = () => {
                   sx={{
                     fontSize: '14px',
                     fontWeight: 500,
-                    color: 'text.primary', // 固定色からテーマの色へ変更
+                    // ライトモード時は柔らかいグレー、ダークモード時は明るいグレー
+                    color: (theme) => theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.7)' : '#e0e0e0',
                     lineHeight: 1.4,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',

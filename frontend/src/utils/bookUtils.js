@@ -6,7 +6,7 @@ export const createOrUpdateBooks = async (setError,
     rows,
     crudFunction,
     setRowErrors,
-    books,
+    books, // (後方互換性のため残すが必要なし)
     setBooks
 ) => {
     try {
@@ -16,38 +16,12 @@ export const createOrUpdateBooks = async (setError,
             crudFunction,
         });
 
-        // 失敗処理
-        if (failedResults.length > 0) {
-            const newErrors = {};
-            failedResults.forEach(({ result, row }) => {
-                const apiResponseData = result.reason.response?.data;
-                const rowSpecificErrors = {};
-                const errorsArray = Array.isArray(apiResponseData)
-                    ? apiResponseData
-                    : [apiResponseData];
-
-                errorsArray.forEach((errorDetail) => {
-                    if (errorDetail && errorDetail.field) {
-                        rowSpecificErrors[errorDetail.field] = errorDetail.message;
-                    } else {
-                        snackbarUtils.error(
-                            `行ID ${row.id} のエラー: ${errorDetail?.message || "不明なエラー"
-                            }`
-                        );
-                    }
-                });
-                newErrors[row.id] = rowSpecificErrors;
-            });
-            setRowErrors((currentErrors) => ({
-                ...currentErrors,
-                ...newErrors,
-            }));
-        }
-
-        //成功処理
+        // 成功通知
         if (successfulResults.length > 0) {
-            const updatedBooks = books.map((book) => {
-                if (!book.isNew && !book.isUpdate) return book;
+            snackbarUtils.success(`${successfulResults.length}件の${crudFunction.displayName}に成功しました。`);
+            
+            // 関数型アップデート (prev) を使って、最新のStateを元に更新する（レースコンディション防止）
+            setBooks((prevBooks) => prevBooks.map((book) => {
                 const success = successfulResults.find(
                     ({ row }) => row.id === book.id
                 );
@@ -59,12 +33,36 @@ export const createOrUpdateBooks = async (setError,
                     };
                 }
                 return book;
+            }));
+        }
+
+        // 失敗通知
+        if (failedResults.length > 0) {
+            snackbarUtils.error(`${failedResults.length}件の${crudFunction.displayName}に失敗しました。`);
+
+            const newErrors = {};
+            failedResults.forEach(({ result, row }) => {
+                const apiResponseData = result.reason.response?.data;
+                const rowSpecificErrors = {};
+                const errorsArray = Array.isArray(apiResponseData)
+                    ? apiResponseData
+                    : [apiResponseData];
+
+                errorsArray.forEach((errorDetail) => {
+                    if (errorDetail && errorDetail.field) {
+                        rowSpecificErrors[errorDetail.field] = errorDetail.message;
+                    } else if (errorDetail && errorDetail.message) {
+                        snackbarUtils.error(`エラー: ${errorDetail.message}`);
+                    }
+                });
+                newErrors[row.id] = rowSpecificErrors;
             });
-            setBooks(updatedBooks);
+            setRowErrors((currentErrors) => ({
+                ...currentErrors,
+                ...newErrors,
+            }));
         }
     } catch (error) {
-        // usePromiseAll内でsetErrorが呼ばれるが、ここで追加のエラーハンドリングも可能
         setError(error);
     }
-
 };

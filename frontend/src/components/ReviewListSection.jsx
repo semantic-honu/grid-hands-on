@@ -10,6 +10,7 @@ import {
 } from "../api/reviewApi";
 import { handlePromiseAll } from "../utils/promiseUtils";
 import { createOrUpdateReviews } from "../utils/reviewUtils";
+import snackbarUtils from "../utils/snackbarUtils";
 
 export const ReviewListSection = ({ bookId }) => {
   const [rowErrors, setRowErrors] = useState({});
@@ -123,7 +124,7 @@ export const ReviewListSection = ({ bookId }) => {
       const savedRowsToDelete = rowsToDelete.filter((r) => !r.isNew);
 
       if (savedRowsToDelete.length > 0) {
-        const { successfulResults } = await handlePromiseAll({
+        const { successfulResults, failedResults } = await handlePromiseAll({
           setError,
           setLoading,
           rows: savedRowsToDelete,
@@ -131,6 +132,7 @@ export const ReviewListSection = ({ bookId }) => {
         });
 
         if (successfulResults.length > 0) {
+          snackbarUtils.success(`${successfulResults.length}件の削除に成功しました。`);
           const successfulIds = new Set(
             successfulResults.map(({ row }) => row.id)
           );
@@ -138,6 +140,12 @@ export const ReviewListSection = ({ bookId }) => {
             prevReviews.filter((r) => !successfulIds.has(r.id))
           );
         }
+
+        if (failedResults.length > 0) {
+          snackbarUtils.error(`${failedResults.length}件の削除に失敗しました。`);
+        }
+      } else if (newRowIds.size > 0) {
+        snackbarUtils.success(`${newRowIds.size}件の未保存行を削除しました。`);
       }
 
       // 選択をクリア

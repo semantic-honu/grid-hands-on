@@ -23,7 +23,7 @@ export const createOrUpdateReviews = async (setError,
     rows,
     crudFunction,
     setRowErrors,
-    reviews,
+    reviews, // (後方互換性のため残すが必要なし)
     setReviews
 ) => {
     // 1. APIに送る前に星(★)を数値(1-5)に変換
@@ -35,12 +35,35 @@ export const createOrUpdateReviews = async (setError,
     try {
         const { successfulResults, failedResults } = await handlePromiseAll({
             setLoading,
-            rows: rowsWithNumericRating, // 数値版を渡す
+            rows: rowsWithNumericRating,
             crudFunction,
         });
 
-        // 失敗処理
+        // 成功通知
+        if (successfulResults.length > 0) {
+            snackbarUtils.success(`${successfulResults.length}件の${crudFunction.displayName}に成功しました。`);
+
+            setReviews((prevReviews) => prevReviews.map((review) => {
+                const success = successfulResults.find(
+                    ({ row }) => row.id === review.id
+                );
+                if (success) {
+                    const backendData = success.result.value.data;
+                    return {
+                        ...backendData,
+                        rating: reverseStarsMap[backendData.rating] || backendData.rating,
+                        isNew: undefined,
+                        isUpdate: undefined,
+                    };
+                }
+                return review;
+            }));
+        }
+
+        // 失敗通知
         if (failedResults.length > 0) {
+            snackbarUtils.error(`${failedResults.length}件の${crudFunction.displayName}に失敗しました。`);
+
             const newErrors = {};
             failedResults.forEach(({ result, row }) => {
                 const apiResponseData = result.reason.response?.data;
@@ -52,11 +75,8 @@ export const createOrUpdateReviews = async (setError,
                 errorsArray.forEach((errorDetail) => {
                     if (errorDetail && errorDetail.field) {
                         rowSpecificErrors[errorDetail.field] = errorDetail.message;
-                    } else {
-                        snackbarUtils.error(
-                            `行ID ${row.id} のエラー: ${errorDetail?.message || "不明なエラー"
-                            }`
-                        );
+                    } else if (errorDetail && errorDetail.message) {
+                        snackbarUtils.error(`エラー: ${errorDetail.message}`);
                     }
                 });
                 newErrors[row.id] = rowSpecificErrors;
@@ -65,27 +85,6 @@ export const createOrUpdateReviews = async (setError,
                 ...currentErrors,
                 ...newErrors,
             }));
-        }
-
-        // 成功処理
-        if (successfulResults.length > 0) {
-            const updatedReviews = reviews.map((review) => {
-                const success = successfulResults.find(
-                    ({ row }) => row.id === review.id
-                );
-                if (success) {
-                    // 2. APIから戻ってきた数値(1-5)を星(★)に戻してStateに保存
-                    const backendData = success.result.value.data;
-                    return {
-                        ...backendData,
-                        rating: reverseStarsMap[backendData.rating] || backendData.rating,
-                        isNew: undefined,
-                        isUpdate: undefined,
-                    };
-                }
-                return review;
-            });
-            setReviews(updatedReviews);
         }
     } catch (error) {
         setError(error);

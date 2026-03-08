@@ -68,7 +68,10 @@ function App() {
                 aria-label="open drawer"
                 onClick={handleMenuToggle}
                 edge="start"
-                sx={{ mr: 2 }}
+                sx={{ 
+                  mr: 2,
+                  color: "rgba(255, 255, 255, 0.9)" // 優しく白いアイコン
+                }}
                 ref={menuButtonRef}
               >
                 <MenuIcon />
@@ -77,17 +80,32 @@ function App() {
                 src={logo}
                 alt="React Symbol"
                 style={{
-                  width: "40px", // 好きなサイズに
-                  height: "auto", // アスペクト比維持
-                  paddingRight: "12px", // 右に余白
+                  width: "40px",
+                  height: "auto",
+                  paddingRight: "12px",
                 }}
               />
-              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              <Typography 
+                variant="h6" 
+                noWrap 
+                component="div" 
+                sx={{ 
+                  flexGrow: 1,
+                  color: "rgba(255, 255, 255, 0.9)", // 優しく白い文字
+                  fontWeight: 500,
+                  letterSpacing: '0.02em'
+                }}
+              >
                 本とレビューの管理アプリ
               </Typography>
 
               {/* ダークモード切り替えボタン */}
-              <IconButton onClick={toggleColorMode} color="inherit" aria-label="toggle dark mode">
+              <IconButton 
+                onClick={toggleColorMode} 
+                color="inherit" 
+                aria-label="toggle dark mode"
+                sx={{ color: "rgba(255, 255, 255, 0.9)" }} // こちらも白へ
+              >
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </IconButton>
             </Toolbar>

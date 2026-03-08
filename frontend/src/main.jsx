@@ -9,19 +9,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false, // ブラウザのタブ切り替え時の自動通信をオフ
-      retry: 1, // エラー時の再試行を1回に制限
+      refetchOnWindowFocus: false,
+      retry: 2, // 2回までリトライを許容
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // 1秒, 2秒...と間隔を空けてリトライ
     },
   },
 });
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <SnackbarProvider maxSnack={3}>
-        <SnackbarUtilsConfigurator />
-        <App />
-      </SnackbarProvider>
-    </QueryClientProvider>
-  </StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <SnackbarProvider maxSnack={3}>
+      <SnackbarUtilsConfigurator />
+      <App />
+    </SnackbarProvider>
+  </QueryClientProvider>
 );

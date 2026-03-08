@@ -3,26 +3,27 @@ services:
   backend:
     build:
       context: ./backend
-      # 開発
       dockerfile: Dockerfile.dev
-      # 本番
-      # dockerfile: Dockerfile
     container_name: grid_app_backend
     volumes:
       - ./backend:/backend
     working_dir: /backend
     ports:
       - "8080:8080"
+    healthcheck:
+      # Actuator のヘルスチェックを確認。Spring Boot 起動完了まで待機させる
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     environment:
       TZ: Asia/Tokyo
 
   frontend:
     build:
       context: ./frontend
-      # 開発
       dockerfile: Dockerfile.dev
-      # 本番
-      # dockerfile: Dockerfile
     container_name: grid_app_frontend
     volumes:
       - ./frontend:/frontend
@@ -33,4 +34,5 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true # ホストとコンテナ間のファイル変更検知を安定させる
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy

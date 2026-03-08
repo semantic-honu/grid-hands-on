@@ -6,6 +6,7 @@ import { handlePromiseAll } from "../utils/promiseUtils";
 import useLoadBooks from "../hooks/useLoadBooks";
 import { createOrUpdateBooks } from "../utils/bookUtils";
 import { createGridColumns } from "../utils/gridUtils";
+import snackbarUtils from "../utils/snackbarUtils";
 
 const BookPage = () => {
   const [rowErrors, setRowErrors] = useState({}); // { [rowId]: { [field]: 'message' } }
@@ -116,15 +117,16 @@ const BookPage = () => {
       const savedRowsToDelete = rowsToDelete.filter((r) => !r.isNew);
 
       if (savedRowsToDelete.length > 0) {
-        const { successfulResults } = await handlePromiseAll({
+        const { successfulResults, failedResults } = await handlePromiseAll({
           setError,
           setLoading,
           rows: savedRowsToDelete,
           crudFunction: deleteBookApi,
         });
 
-        // 成功した行を削除
+        // 成功通知
         if (successfulResults.length > 0) {
+          snackbarUtils.success(`${successfulResults.length}件の削除に成功しました。`);
           const successfulIds = new Set(
             successfulResults.map(({ row }) => row.id)
           );
@@ -132,6 +134,14 @@ const BookPage = () => {
             prevBooks.filter((b) => !successfulIds.has(b.id))
           );
         }
+
+        // 失敗通知
+        if (failedResults.length > 0) {
+          snackbarUtils.error(`${failedResults.length}件の削除に失敗しました。`);
+        }
+      } else if (newRowIds.size > 0) {
+        // 新規行のみ削除した場合も通知を出す
+        snackbarUtils.success(`${newRowIds.size}件の未保存行を削除しました。`);
       }
       
       // 選択をクリア

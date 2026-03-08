@@ -1,4 +1,3 @@
-import snackbarUtils from "../utils/snackbarUtils";
 import axios, { HttpStatusCode } from "axios";
 
 // axiosのカスタムインスタンスを作成
@@ -7,15 +6,12 @@ export const apiClient = axios.create({
     timeout: 5000, // タイムアウトを5秒に設定
 });
 
-// 共通エラー処理
+// 共通エラー処理（通知はPage/Utils側で制御するため、ここではログ出力のみ）
 apiClient.interceptors.response.use(
-    (response) => response, (error) => {
-        console.error('API error:', error.config?.url, error);
-        if (!error.response) {
-            snackbarUtils.error('通信エラーが発生しました。通信できるか確認してください。');
-        } else if (error.response.status >= HttpStatusCode.InternalServerError) {
-            snackbarUtils.error('サーバーエラーですね。');
-        }
+    (response) => response, 
+    (error) => {
+        // 開発時のデバッグ用にコンソールには残すが、画面への通知（snackbar）は出さない
+        console.error('API error:', error.config?.url, error.message);
         return Promise.reject(error);
     }
 );
