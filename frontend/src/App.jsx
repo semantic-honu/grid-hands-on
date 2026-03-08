@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import {
   AppBar,
@@ -7,16 +7,18 @@ import {
   Toolbar,
   Typography,
   IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { theme } from "./theme/theme";
+import { getTheme } from "./theme/theme";
 import MenuBar from "./components/MenuBar";
 import BookPage from "./pages/BookPage";
-import AuthorPage from "./pages/AuthorPage";
 import ErrorFallback from "./components/ErrorFallback";
 import logo from "./assets/logo.svg";
 import ReviewPage from "./pages/ReviewPage";
@@ -25,8 +27,17 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef(null);
 
+  // システムのモード設定を初期値にする
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const [mode, setMode] = useState(prefersDarkMode ? 'dark' : 'light');
+
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  const toggleColorMode = () => {
+    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+  };
+
   const handleMenuToggle = () => {
-    // メニューを閉じる場合、アニメーション完了後にフォーカスを戻す
     if (menuOpen) {
       setTimeout(() => {
         menuButtonRef.current?.focus();
@@ -44,10 +55,9 @@ function App() {
             position="fixed"
             sx={{
               zIndex: (theme) => theme.zIndex.drawer + 1,
-              background:
-                // "linear-gradient(90deg, #ff7eb9, #ff65a3, #7afcff, #feff9c)",
-                "linear-gradient(90deg,  #7aa2ffff, #ea9ff4ff)",
-              // textShadowの値をCSSと同じ形式で文字列として指定します
+              background: mode === 'light'
+                ? "linear-gradient(90deg, #7aa2ff, #ea9ff4)"
+                : "linear-gradient(90deg, #1e3a8a, #000000)", // ダークモード向けの暗いトーン
               boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
               fontSize: "2rem",
             }}
@@ -72,9 +82,14 @@ function App() {
                   paddingRight: "12px", // 右に余白
                 }}
               />
-              <Typography variant="h6" noWrap component="div">
+              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                 本とレビューの管理アプリ
               </Typography>
+
+              {/* ダークモード切り替えボタン */}
+              <IconButton onClick={toggleColorMode} color="inherit" aria-label="toggle dark mode">
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
             </Toolbar>
           </AppBar>
           <MenuBar open={menuOpen} onClose={handleMenuToggle} />
@@ -92,7 +107,6 @@ function App() {
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <Routes>
                 <Route path="/" element={<BookPage />} />
-                <Route path="/authors" element={<AuthorPage />} />
                 <Route path="/reviews" element={<ReviewPage />} />
                 <Route path="*" element={<NotFound />} /> {/* 404ページ */}
               </Routes>

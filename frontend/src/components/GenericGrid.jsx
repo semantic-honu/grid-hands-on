@@ -81,12 +81,12 @@ const GenericGrid = ({
             sx={{
               // ヘッダー全体の背景色
               "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "#f0f0f0 !important",
+                backgroundColor: (theme) => theme.palette.mode === 'light' ? "#f0f0f0 !important" : "#111111 !important",
               },
-              // 各ヘッダーセルの背景色（これがないと白くなる場合がある）
+              // 各ヘッダーセルの背景色
               "& .MuiDataGrid-columnHeader": {
-                backgroundColor: "#f0f0f0 !important",
-                color: "var(--modern-black)",
+                backgroundColor: (theme) => theme.palette.mode === 'light' ? "#f0f0f0 !important" : "#111111 !important",
+                color: (theme) => theme.palette.mode === 'light' ? "var(--modern-black)" : "#e0e0e0",
               },
               // データセルのテキストにだけ余白を付ける（レイアウトを崩さない安全な方法）
               "& .MuiDataGrid-cell": {

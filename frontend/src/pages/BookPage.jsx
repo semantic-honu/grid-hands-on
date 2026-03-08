@@ -87,9 +87,17 @@ const BookPage = () => {
   // 削除
   const useDeleteData = async () => {
     try {
-      const selectedIdsArray = Array.from(selectedIds?.ids || []);
+      // どのような形式（Array, Set, {ids: [...]}) で来ても確実に配列に変換する
+      let rawIds = Array.isArray(selectedIds) 
+        ? selectedIds 
+        : (selectedIds?.ids || selectedIds);
+      
+      const idsArray = Array.from(rawIds || []);
+
+      if (idsArray.length === 0) return;
+
       const rowsToDelete = books.filter((book) =>
-        selectedIdsArray.includes(book.id)
+        idsArray.includes(book.id)
       );
 
       // 1. 未保存の新規行 (isNew: true) を即座にローカルから消す

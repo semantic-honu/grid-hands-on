@@ -44,44 +44,50 @@ export const ReviewListSection = ({ bookId }) => {
   const useSaveData = async () => {
     document.activeElement?.blur();
 
-    const updateRows = reviews.filter((r) => r.isUpdate);
+    // 更新行の抽出
+    const updateRows = reviews.filter((r) => r.isUpdate && !r.isNew);
     removeRowError(updateRows);
     try {
-      await createOrUpdateReviews(
-        setError,
-        setLoading,
-        updateRows,
-        updateReviewApi,
-        setRowErrors,
-        reviews,
-        setReviews
-      );
+      if (updateRows.length > 0) {
+        await createOrUpdateReviews(
+          setError,
+          setLoading,
+          updateRows,
+          updateReviewApi,
+          setRowErrors,
+          reviews,
+          setReviews
+        );
+      }
     } catch (error) {
       setError(error);
     }
 
+    // 新規行の抽出
     const newRows = reviews.filter((r) => r.isNew);
     removeRowError(newRows);
     try {
-      // createReviewApiには直接渡せないbookIdを渡しつつ、displayNameも引き継ぐ
-      const createFn = (row) => createReviewApi(bookId, row);
-      createFn.displayName = createReviewApi.displayName;
+      if (newRows.length > 0) {
+        // createReviewApiには直接渡せないbookIdを渡しつつ、displayNameも引き継ぐ
+        const createFn = (row) => createReviewApi(bookId, row);
+        createFn.displayName = createReviewApi.displayName;
 
-      await createOrUpdateReviews(
-        setError,
-        setLoading,
-        newRows,
-        createFn, // displayNameを保持した関数を渡す
-        setRowErrors,
-        reviews,
-        setReviews
-      );
+        await createOrUpdateReviews(
+          setError,
+          setLoading,
+          newRows,
+          createFn,
+          setRowErrors,
+          reviews,
+          setReviews
+        );
+      }
     } catch (error) {
       setError(error);
     }
 
-    function removeRowError(row) {
-      const rowIds = row.map((r) => r.id);
+    function removeRowError(rows) {
+      const rowIds = rows.map((r) => r.id);
       setRowErrors((currentErrors) => {
         const remainingErrors = { ...currentErrors };
         rowIds.forEach((id) => delete remainingErrors[id]);
@@ -92,9 +98,17 @@ export const ReviewListSection = ({ bookId }) => {
 
   const useDeleteData = async () => {
     try {
-      const selectedIdsArray = Array.from(selectedIds || []);
+      // どのような形式（Array, Set, {ids: [...]}) で来ても確実に配列に変換する
+      let rawIds = Array.isArray(selectedIds) 
+        ? selectedIds 
+        : (selectedIds?.ids || selectedIds);
+      
+      const idsArray = Array.from(rawIds || []);
+
+      if (idsArray.length === 0) return;
+
       const rowsToDelete = reviews.filter((review) =>
-        selectedIdsArray.includes(review.id)
+        idsArray.includes(review.id)
       );
 
       // 1. 未保存の新規行 (isNew: true) を即座にローカルから消す
