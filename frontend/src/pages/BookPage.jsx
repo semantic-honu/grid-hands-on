@@ -87,28 +87,43 @@ const BookPage = () => {
   // 削除
   const useDeleteData = async () => {
     try {
-      // selectedIdsに一致するbookオブジェクトの配列を作成
-      const 配列化されたIDs = Array.from(selectedIds?.ids);
+      const selectedIdsArray = Array.from(selectedIds?.ids || []);
       const rowsToDelete = books.filter((book) =>
-        配列化されたIDs.includes(book.id)
+        selectedIdsArray.includes(book.id)
       );
-      const { successfulResults } = await handlePromiseAll({
-        setError,
-        setLoading,
-        rows: rowsToDelete, // オブジェクトの配列を渡すように修正
-        crudFunction: deleteBookApi,
-      });
 
-      //成功した行を削除
-      if (successfulResults.length > 0) {
-        const successfulIds = new Set(
-          successfulResults.map(({ row }) => row.id)
-        );
-        setBooks((prevBooks) =>
-          prevBooks.filter((b) => !successfulIds.has(b.id))
-        );
-        setSelectedIds([]);
+      // 1. 未保存の新規行 (isNew: true) を即座にローカルから消す
+      const newRowsToDelete = rowsToDelete.filter((r) => r.isNew);
+      const newRowIds = new Set(newRowsToDelete.map((r) => r.id));
+
+      if (newRowIds.size > 0) {
+        setBooks((prev) => prev.filter((b) => !newRowIds.has(b.id)));
       }
+
+      // 2. 保存済みの行のみ API で削除を実行
+      const savedRowsToDelete = rowsToDelete.filter((r) => !r.isNew);
+
+      if (savedRowsToDelete.length > 0) {
+        const { successfulResults } = await handlePromiseAll({
+          setError,
+          setLoading,
+          rows: savedRowsToDelete,
+          crudFunction: deleteBookApi,
+        });
+
+        // 成功した行を削除
+        if (successfulResults.length > 0) {
+          const successfulIds = new Set(
+            successfulResults.map(({ row }) => row.id)
+          );
+          setBooks((prevBooks) =>
+            prevBooks.filter((b) => !successfulIds.has(b.id))
+          );
+        }
+      }
+      
+      // 選択をクリア
+      setSelectedIds([]);
     } catch (error) {
       setError(error);
     }

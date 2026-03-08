@@ -1,13 +1,12 @@
 export const bookColumnsSchema = [
-    { field: "id", headerName: "ID", width: 90 },
     {
         field: "title",
         headerName: "タイトル",
-        width: 250,
+        flex: 2,
         editable: true,
     },
-    { field: "author", headerName: "著者", width: 200, editable: true },
-    { field: "isbn", headerName: "ISBN", width: 200, editable: true },
+    { field: "author", headerName: "著者", flex: 1, editable: true },
+    { field: "isbn", headerName: "ISBN", flex: 1, editable: true },
     {
         field: "publicationDate",
         headerName: "出版日",
@@ -17,7 +16,7 @@ export const bookColumnsSchema = [
             if (!value) return '';
             return new Date(value).toLocaleDateString('ja-JP');
         },
-        width: 200,
+        flex: 1,
         editable: true,
     },
 ];

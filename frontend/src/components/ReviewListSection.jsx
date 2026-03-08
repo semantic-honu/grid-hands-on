@@ -92,25 +92,42 @@ export const ReviewListSection = ({ bookId }) => {
 
   const useDeleteData = async () => {
     try {
+      const selectedIdsArray = Array.from(selectedIds || []);
       const rowsToDelete = reviews.filter((review) =>
-        selectedIds.includes(review.id)
+        selectedIdsArray.includes(review.id)
       );
-      const { successfulResults } = await handlePromiseAll({
-        setError,
-        setLoading,
-        rows: rowsToDelete,
-        crudFunction: deleteReviewApi,
-      });
 
-      if (successfulResults.length > 0) {
-        const successfulIds = new Set(
-          successfulResults.map(({ row }) => row.id)
-        );
-        setReviews((prevReviews) =>
-          prevReviews.filter((r) => !successfulIds.has(r.id))
-        );
-        setSelectedIds([]);
+      // 1. 未保存の新規行 (isNew: true) を即座にローカルから消す
+      const newRowsToDelete = rowsToDelete.filter((r) => r.isNew);
+      const newRowIds = new Set(newRowsToDelete.map((r) => r.id));
+
+      if (newRowIds.size > 0) {
+        setReviews((prev) => prev.filter((r) => !newRowIds.has(r.id)));
       }
+
+      // 2. 保存済みの行のみ API で削除を実行
+      const savedRowsToDelete = rowsToDelete.filter((r) => !r.isNew);
+
+      if (savedRowsToDelete.length > 0) {
+        const { successfulResults } = await handlePromiseAll({
+          setError,
+          setLoading,
+          rows: savedRowsToDelete,
+          crudFunction: deleteReviewApi,
+        });
+
+        if (successfulResults.length > 0) {
+          const successfulIds = new Set(
+            successfulResults.map(({ row }) => row.id)
+          );
+          setReviews((prevReviews) =>
+            prevReviews.filter((r) => !successfulIds.has(r.id))
+          );
+        }
+      }
+
+      // 選択をクリア
+      setSelectedIds([]);
     } catch (error) {
       setError(error);
     }

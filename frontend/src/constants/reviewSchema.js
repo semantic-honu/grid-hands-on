@@ -1,16 +1,15 @@
 export const reviewColumnsSchema = [
-    { field: "id", headerName: "ID", width: 90 },
     {
         field: "reviewer",
         headerName: "レビュアー",
-        width: 250,
+        flex: 1,
         editable: true,
     },
-    { field: "rating", headerName: "評価", width: 250, editable: true },
+    { field: "rating", headerName: "評価", flex: 1, editable: true },
     {
         field: "comment",
         headerName: "コメント",
-        flex: 1,
+        flex: 2,
         minWidth: 200,
         editable: true,
     },

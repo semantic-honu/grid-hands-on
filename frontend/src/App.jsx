@@ -18,7 +18,7 @@ import MenuBar from "./components/MenuBar";
 import BookPage from "./pages/BookPage";
 import AuthorPage from "./pages/AuthorPage";
 import ErrorFallback from "./components/ErrorFallback";
-import logo from "./assets/react.svg";
+import logo from "./assets/logo.svg";
 import ReviewPage from "./pages/ReviewPage";
 
 function App() {
@@ -73,7 +73,7 @@ function App() {
                 }}
               />
               <Typography variant="h6" noWrap component="div">
-                本と作者の管理アプリ
+                本とレビューの管理アプリ
               </Typography>
             </Toolbar>
           </AppBar>
