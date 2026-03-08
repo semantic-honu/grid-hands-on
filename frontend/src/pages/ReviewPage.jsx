@@ -14,6 +14,8 @@ export const ReviewPage = () => {
     queryFn: async () => {
       return await fetchBooksApi();
     },
+    refetchOnWindowFocus: false, // フォーカス時の自動通信をオフ
+    retry: 1, // 失敗時の再試行回数を1回に抑える
   });
 
   // スケルトン表示（読み込み中のプレースホルダー）

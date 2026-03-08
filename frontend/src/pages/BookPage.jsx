@@ -43,35 +43,39 @@ const BookPage = () => {
     document.activeElement?.blur(); // 編集中セルのフォーカスを外す
 
     const UpdateRows = books.filter((b) => b.isUpdate);
-    removeRowError(UpdateRows);
-    try {
-      await createOrUpdateBooks(
-        setError,
-        setLoading,
-        UpdateRows,
-        updateBookApi,
-        setRowErrors,
-        books,
-        setBooks
-      );
-    } catch (error) {
-      setError(error);
+    if (UpdateRows.length > 0) {
+      removeRowError(UpdateRows);
+      try {
+        await createOrUpdateBooks(
+          setError,
+          setLoading,
+          UpdateRows,
+          updateBookApi,
+          setRowErrors,
+          books,
+          setBooks
+        );
+      } catch (error) {
+        setError(error);
+      }
     }
 
     const newRows = books.filter((b) => b.isNew);
-    removeRowError(newRows);
-    try {
-      await createOrUpdateBooks(
-        setError,
-        setLoading,
-        newRows,
-        createBookApi,
-        setRowErrors,
-        books,
-        setBooks
-      );
-    } catch (error) {
-      setError(error);
+    if (newRows.length > 0) {
+      removeRowError(newRows);
+      try {
+        await createOrUpdateBooks(
+          setError,
+          setLoading,
+          newRows,
+          createBookApi,
+          setRowErrors,
+          books,
+          setBooks
+        );
+      } catch (error) {
+        setError(error);
+      }
     }
 
     function removeRowError(row) {
