@@ -1,6 +1,7 @@
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridRowModes } from "@mui/x-data-grid";
 import StackButton from "./StackButton";
 import { useState } from "react";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 // エラー表示用のコンポーネントを内部で定義
 function CustomErrorOverlay({ error }) {
@@ -23,6 +24,25 @@ const GenericGrid = ({
   ...rest
 }) => {
   const [deleteMode, setDeleteMode] = useState(false); //削除モードの状態
+  const [rowModesModel, setRowModesModel] = useState({}); // 編集モードの状態管理
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // スマホ判定
+
+  // 行クリック時の処理
+  const handleRowClick = (params) => {
+    // スマホかつ削除モードでない場合、シングルクリックで編集モードへ
+    if (isMobile && !deleteMode) {
+      setRowModesModel({
+        ...rowModesModel,
+        [params.id]: { mode: GridRowModes.Edit },
+      });
+    }
+  };
+
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
   return (
     <>
@@ -52,6 +72,9 @@ const GenericGrid = ({
             columns={columns}
             loading={loading}
             editMode="row"
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={handleRowModesModelChange}
+            onRowClick={handleRowClick}
             error={error} // error は DataGrid 自身も使うので渡す
             columnHeaderHeight={50} // ヘッダーの高さをプロパティで指定
             // 削除時のチェックボックス処理

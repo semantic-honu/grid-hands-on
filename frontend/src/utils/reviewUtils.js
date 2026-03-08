@@ -1,6 +1,23 @@
 import { handlePromiseAll } from "./promiseUtils.js";
 import snackbarUtils from "./snackbarUtils";
 
+// 星の数と数値の相互変換マップ
+const starsMap = {
+    '★': 1,
+    '★★': 2,
+    '★★★': 3,
+    '★★★★': 4,
+    '★★★★★': 5,
+};
+
+const reverseStarsMap = {
+    1: '★',
+    2: '★★',
+    3: '★★★',
+    4: '★★★★',
+    5: '★★★★★',
+};
+
 export const createOrUpdateReviews = async (setError,
     setLoading,
     rows,
@@ -9,10 +26,16 @@ export const createOrUpdateReviews = async (setError,
     reviews,
     setReviews
 ) => {
+    // 1. APIに送る前に星(★)を数値(1-5)に変換
+    const rowsWithNumericRating = rows.map(r => ({
+        ...r,
+        rating: starsMap[r.rating] || r.rating
+    }));
+
     try {
         const { successfulResults, failedResults } = await handlePromiseAll({
             setLoading,
-            rows,
+            rows: rowsWithNumericRating, // 数値版を渡す
             crudFunction,
         });
 
@@ -44,16 +67,18 @@ export const createOrUpdateReviews = async (setError,
             }));
         }
 
-        //成功処理
+        // 成功処理
         if (successfulResults.length > 0) {
             const updatedReviews = reviews.map((review) => {
-                if (!review.isNew && !review.isUpdate) return review;
                 const success = successfulResults.find(
                     ({ row }) => row.id === review.id
                 );
                 if (success) {
+                    // 2. APIから戻ってきた数値(1-5)を星(★)に戻してStateに保存
+                    const backendData = success.result.value.data;
                     return {
-                        ...success.result.value.data,
+                        ...backendData,
+                        rating: reverseStarsMap[backendData.rating] || backendData.rating,
                         isNew: undefined,
                         isUpdate: undefined,
                     };
