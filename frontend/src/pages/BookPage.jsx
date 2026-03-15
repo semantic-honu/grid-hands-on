@@ -64,11 +64,19 @@ const BookPage = () => {
     const newRows = books.filter((b) => b.isNew);
     if (newRows.length > 0) {
       removeRowError(newRows);
+      
+      // ログイン中のユーザーIDを付与
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const rowsWithUserId = newRows.map(row => ({
+        ...row,
+        userId: user.id
+      }));
+
       try {
         await createOrUpdateBooks(
           setError,
           setLoading,
-          newRows,
+          rowsWithUserId,
           createBookApi,
           setRowErrors,
           books,

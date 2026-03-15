@@ -10,9 +10,17 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import Brightness4Icon from '@mui/icons-material/Brightness4';
-import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { createBrowserRouter, RouterProvider, Outlet, useBlocker } from "react-router-dom";
+import Brightness4Icon from "@mui/icons-material/Brightness4";
+import Brightness7Icon from "@mui/icons-material/Brightness7";
+import LogoutIcon from "@mui/icons-material/Logout";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  useBlocker,
+  useNavigate,
+  Navigate,
+} from "react-router-dom";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "react-error-boundary";
 import {
@@ -21,49 +29,62 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Button
+  Button,
 } from "@mui/material";
 
 import { getTheme } from "./theme/theme";
 import MenuBar from "./components/MenuBar";
 import BookPage from "./pages/BookPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import ErrorFallback from "./components/ErrorFallback";
 import logo from "./assets/logo.svg";
 import ReviewPage from "./pages/ReviewPage";
 import { useGridStore } from "./stores/useGridStore";
 
-// レイアウトコンポーネント（ここではルーターのコンテキスト内）
+// 認証チェック用コンポーネント
+const ProtectedRoute = ({ children }) => {
+  const user = localStorage.getItem("user");
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// レイアウトコンポーネント
 function LayoutWrapper() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButtonRef = useRef(null);
+  const navigate = useNavigate();
 
   // システムのモード設定
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const [mode, setMode] = useState(prefersDarkMode ? 'dark' : 'light');
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [mode, setMode] = useState(prefersDarkMode ? "dark" : "light");
 
   const theme = useMemo(() => getTheme(mode), [mode]);
   const hasUnsavedChanges = useGridStore((state) => state.hasUnsavedChanges);
 
   const toggleColorMode = () => {
-    setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+    setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
   const handleMenuToggle = () => {
-    if (menuOpen) {
-      setTimeout(() => {
-        menuButtonRef.current?.focus();
-      }, 200);
-    }
     setMenuOpen(!menuOpen);
   };
 
-  // 【重要】唯一のブロッカー。LayoutWrapper が常にマウントされているため、ここで一元管理。
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
   const blocker = useBlocker(
     useCallback(
       ({ currentLocation, nextLocation }) =>
         hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname,
-      [hasUnsavedChanges]
-    )
+      [hasUnsavedChanges],
+    ),
   );
 
   return (
@@ -71,7 +92,6 @@ function LayoutWrapper() {
       <Box sx={{ display: "flex" }}>
         <CssBaseline />
 
-        {/* 画面遷移確認ダイアログ */}
         <Dialog
           open={blocker.state === "blocked"}
           onClose={() => blocker.reset?.()}
@@ -97,11 +117,11 @@ function LayoutWrapper() {
           position="fixed"
           sx={{
             zIndex: (theme) => theme.zIndex.drawer + 1,
-            background: mode === 'light'
-              ? "linear-gradient(90deg, #7aa2ff, #ea9ff4)"
-              : "linear-gradient(90deg, #1e3a8a, #000000)",
+            background:
+              mode === "light"
+                ? "linear-gradient(90deg, #7aa2ff, #ea9ff4)"
+                : "linear-gradient(90deg, #1e3a8a, #000000)",
             boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-            fontSize: "2rem",
           }}
         >
           <Toolbar>
@@ -115,19 +135,52 @@ function LayoutWrapper() {
             >
               <MenuIcon />
             </IconButton>
-            <img src={logo} alt="Logo" style={{ width: "40px", paddingRight: "12px" }} />
-            <Typography variant="h6" noWrap sx={{ flexGrow: 1, color: "rgba(255, 255, 255, 0.9)" }}>
+            <img
+              src={logo}
+              alt="Logo"
+              style={{ width: "40px", paddingRight: "12px" }}
+            />
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{ flexGrow: 1, color: "rgba(255, 255, 255, 0.9)" }}
+            >
               本とレビューの管理アプリ
             </Typography>
-            <IconButton onClick={toggleColorMode} color="inherit">
-              {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+
+            {user.username && (
+              <Typography
+                variant="body1"
+                sx={{ mr: 2, color: "rgba(255, 255, 255, 0.8)" }}
+              >
+                ユーザー: {user.username}
+              </Typography>
+            )}
+
+            <IconButton
+              onClick={toggleColorMode}
+              color="inherit"
+              sx={{ color: "rgba(255, 255, 255, 0.9)" }}
+            >
+              {mode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <IconButton
+              onClick={handleLogout}
+              color="inherit"
+              title="ログアウト"
+              sx={{ color: "rgba(255, 255, 255, 0.9)" }}
+            >
+              <LogoutIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
 
         <MenuBar open={menuOpen} onClose={handleMenuToggle} />
 
-        <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
+        <Box
+          component="main"
+          sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
+        >
           <Toolbar />
           <ErrorBoundary FallbackComponent={ErrorFallback}>
             <Outlet />
@@ -138,11 +191,22 @@ function LayoutWrapper() {
   );
 }
 
-// ルーター自体の定義はコンポーネントの外で行う（再生成を防ぐため）
 const router = createBrowserRouter([
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+  {
     path: "/",
-    element: <LayoutWrapper />,
+    element: (
+      <ProtectedRoute>
+        <LayoutWrapper />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <BookPage /> },
       { path: "reviews", element: <ReviewPage /> },

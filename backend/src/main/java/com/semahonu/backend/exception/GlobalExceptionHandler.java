@@ -37,6 +37,14 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
 
+        // ユーザー重複例外ハンドラー
+        @ExceptionHandler(UserAlreadyExistsException.class)
+        public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+                ErrorResponse errorResponse = new ErrorResponse(
+                                ex.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
+
         // JSONパース例外ハンドラー
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<?> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {

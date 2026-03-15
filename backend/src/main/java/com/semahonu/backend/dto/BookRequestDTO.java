@@ -5,11 +5,13 @@ import java.util.Date;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class BookRequestDTO {
 
     @NotBlank(message = "タイトルがいります")
@@ -20,4 +22,6 @@ public class BookRequestDTO {
 
     private String isbn;
     private Date publicationDate;
+
+    private Long userId;
 }
