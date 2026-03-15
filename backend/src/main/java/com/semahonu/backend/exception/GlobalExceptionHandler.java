@@ -77,18 +77,10 @@ public class GlobalExceptionHandler {
                 return refString; // fallback
         }
 
-        /**
-         * 本番時には以下のようなグローバル例外ハンドラーを実装して、例外発生時に適切なレスポンスを返すことが推奨されます。
-         * 
-         * 例:
-         * 
-         * @ExceptionHandler(Exception.class)
-         *                                    public ResponseEntity<String>
-         *                                    handleGeneric(Exception ex) {
-         *                                    return
-         *                                    ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-         *                                    .body("サーバーエラーが発生しました");
-         *                                    }
-         */
-
+        // 汎用例外ハンドラー
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
+                ErrorResponse errorResponse = new ErrorResponse("予期しないエラーが発生しました。");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
 }

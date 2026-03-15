@@ -10,12 +10,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.semahonu.backend.exception.GlobalExceptionHandler;
+import com.semahonu.backend.exception.ResourceNotFoundException;
 import com.semahonu.backend.service.BookService;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.*;
 
 @WebMvcTest({ BookController.class, GlobalExceptionHandler.class })
 public class BookControllerTest {
@@ -67,16 +68,14 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$[*].message").value(hasItem(expectedMessage)));
     }
 
-    // @Test
-    // void 存在しないIDを削除しようとしたら404とエラーメッセージが返る() throws Exception {
-    //     Long targetId = 1L;
-    //     // ServiceがNotFoundを投げる、もしくはControllerがexistsをチェックしてNotFoundになる設定
-    //     when(bookService.existsById(anyLong())).thenReturn(false);
+    @Test
+    void 存在しないIDを削除しようとしたら404とエラーメッセージが返る() throws Exception {
+        Long targetId = 1L;
+        // ServiceのdeleteBookを呼び出したときに例外を投げるように設定
+        when(bookService.deleteBook(targetId)).thenThrow(ResourceNotFoundException.forBook(targetId));
 
-    //     mockMvc.perform(delete("/api/books/" + targetId).with(csrf()))
-    //             .andDo(print())
-    //             .andExpect(status().isNotFound())
-    //             .andExpect(jsonPath("$.error").value("データが見つかりません"))
-    //             .andExpect(jsonPath("$.details").value(containsString("Book not found with id: 1")));
-    // }
+        mockMvc.perform(delete("/api/books/" + targetId))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Book not found with id: 1"));
+    }
 }

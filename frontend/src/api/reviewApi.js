@@ -1,21 +1,18 @@
-import { apiClient } from './baseApi';
+import { apiClient, CRUD_OPS, withName } from './baseApi';
 
 export const fetchReviewsApi = async (bookId) => {
     const response = await apiClient.get(`/books/${bookId}/reviews`);
     return response.data;
 };
 
-export const createReviewApi = (bookId, row) => {
+export const createReviewApi = withName((bookId, row) => {
     return apiClient.post(`/books/${bookId}/reviews`, row);
-}
-createReviewApi.displayName = '登録'; //処理名を付与
+}, CRUD_OPS.CREATE);
 
-export const updateReviewApi = (row) => {
+export const updateReviewApi = withName((row) => {
     return apiClient.put(`/reviews/${row.id}`, row);
-};
-updateReviewApi.displayName = '更新'; //処理名を付与
+}, CRUD_OPS.UPDATE);
 
-export const deleteReviewApi = (row) => {
+export const deleteReviewApi = withName((row) => {
     return apiClient.delete(`/reviews/${row.id}`);
-};
-deleteReviewApi.displayName = '削除'; //処理名を付与
+}, CRUD_OPS.DELETE);

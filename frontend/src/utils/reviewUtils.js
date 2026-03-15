@@ -2,7 +2,7 @@ import { handlePromiseAll } from "./promiseUtils.js";
 import snackbarUtils from "./snackbarUtils";
 
 // 星の数と数値の相互変換マップ
-const starsMap = {
+export const starsMap = {
     '★': 1,
     '★★': 2,
     '★★★': 3,
@@ -10,13 +10,21 @@ const starsMap = {
     '★★★★★': 5,
 };
 
-const reverseStarsMap = {
+export const reverseStarsMap = {
     1: '★',
     2: '★★',
     3: '★★★',
     4: '★★★★',
     5: '★★★★★',
 };
+
+/**
+ * バックエンドからのレスポンスをフロントエンド表示用（星形式）に変換する
+ */
+export const formatReview = (review) => ({
+    ...review,
+    rating: reverseStarsMap[review.rating] || review.rating
+});
 
 export const createOrUpdateReviews = async (setError,
     setLoading,
@@ -50,8 +58,7 @@ export const createOrUpdateReviews = async (setError,
                 if (success) {
                     const backendData = success.result.value.data;
                     return {
-                        ...backendData,
-                        rating: reverseStarsMap[backendData.rating] || backendData.rating,
+                        ...formatReview(backendData), // ヘルパーを使用
                         isNew: undefined,
                         isUpdate: undefined,
                     };

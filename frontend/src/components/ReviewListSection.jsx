@@ -8,6 +8,7 @@ import {
   deleteReviewApi,
   updateReviewApi,
 } from "../api/reviewApi";
+import { withName } from "../api/baseApi";
 import { handlePromiseAll } from "../utils/promiseUtils";
 import { createOrUpdateReviews } from "../utils/reviewUtils";
 import snackbarUtils from "../utils/snackbarUtils";
@@ -70,8 +71,7 @@ export const ReviewListSection = ({ bookId }) => {
     try {
       if (newRows.length > 0) {
         // createReviewApiには直接渡せないbookIdを渡しつつ、displayNameも引き継ぐ
-        const createFn = (row) => createReviewApi(bookId, row);
-        createFn.displayName = createReviewApi.displayName;
+        const createFn = withName((row) => createReviewApi(bookId, row), createReviewApi.displayName);
 
         await createOrUpdateReviews(
           setError,

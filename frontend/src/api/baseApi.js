@@ -15,3 +15,21 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+// CRUD操作名の定数
+export const CRUD_OPS = {
+    CREATE: '登録',
+    UPDATE: '更新',
+    DELETE: '削除',
+};
+
+/**
+ * 関数に表示名（displayName）を付与するヘルパー
+ * @param {Function} fn 
+ * @param {string} displayName 
+ * @returns {Function}
+ */
+export const withName = (fn, displayName) => {
+    fn.displayName = displayName;
+    return fn;
+};
