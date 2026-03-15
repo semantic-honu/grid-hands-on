@@ -24,8 +24,11 @@ const StackButton = ({
   // 削除ボタンはエラーのときだけ disable
   const disableDelete = hasError;
 
+  // 未保存の件数を計算
+  const unsavedCount = rows.filter(r => r.isNew || r.isUpdate).length;
+
   return (
-    <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+    <Stack direction="row" spacing={3} sx={{ mb: 1 }}>
       <TextButton
         text="行を追加する"
         onClick={addRow}
@@ -35,6 +38,7 @@ const StackButton = ({
         text="データを保存する"
         onClick={useSaveData}
         disabled={disableAddAndSave}
+        badgeContent={unsavedCount}
       />
       {!deleteMode && (
         <TextButton

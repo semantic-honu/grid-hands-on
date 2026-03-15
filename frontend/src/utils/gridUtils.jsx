@@ -40,7 +40,8 @@ export const createGridColumns = (columnsSchema, rowErrors = {}) => {
               style={{
                 backgroundColor: errorMsg ? "#ffebee" : "transparent", // 薄い赤
                 color: errorMsg ? "#d32f2f" : "inherit", // 濃い赤
-                padding: errorMsg ? "2px 8px" : "0", // エラーの時だけ少し内側を塗る
+                padding: "2px 8px", // 常にパディングを持たせて位置を固定
+                margin: "0 -8px", // セルの16pxパディングと相殺してテキスト位置を16pxに保つ
                 borderRadius: "4px", // 角を少し丸くする
                 fontSize: "0.875rem",
               }}
