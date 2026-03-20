@@ -1,4 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
+import { 
+  Box, 
+  Typography, 
+  Alert 
+} from "@mui/material";
 import { createBookApi, deleteBookApi, updateBookApi } from "../api/bookApi";
 import GenericGrid from "../components/GenericGrid";
 import { bookColumnsSchema } from "../constants/bookSchema";
@@ -165,12 +170,22 @@ const BookPage = () => {
     error,
     loading,
     setRows: setBooks,
+    setRowErrors,
     useSaveData,
     useDeleteData,
     setSelectedIds,
   };
 
-  return <GenericGrid {...gridProps} />;
+  return (
+    <Box>
+      <Alert severity="info" sx={{ mb: 1, py: 0, border: 'none', bgcolor: 'transparent' }}>
+        <Typography variant="caption" color="text.secondary">
+          ※学習用プロトタイプのため、入力データは定期的に消去される場合があります。個人情報は入力しないでください。
+        </Typography>
+      </Alert>
+      <GenericGrid {...gridProps} />
+    </Box>
+  );
 };
 
 export default BookPage;

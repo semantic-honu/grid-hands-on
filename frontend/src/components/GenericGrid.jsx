@@ -24,6 +24,7 @@ const GenericGrid = ({
   error,
   loading,
   setRows,
+  setRowErrors,
   gridHeight = "calc(100vh - 120px)",
   gridWidth = "calc(100vw - 60px)",
   ...rest
@@ -76,6 +77,31 @@ const GenericGrid = ({
     setRowModesModel(newRowModesModel);
   };
 
+  const handleCellEditStart = (params) => {
+    if (setRowErrors) {
+      setRowErrors((prev) => {
+        const rowError = prev[params.id];
+        if (rowError && rowError[params.field]) {
+          const newRowError = { ...rowError };
+          delete newRowError[params.field];
+          
+          // もしその行のエラーが他になければ、行ごと削除
+          if (Object.keys(newRowError).length === 0) {
+            const next = { ...prev };
+            delete next[params.id];
+            return next;
+          }
+          
+          return {
+            ...prev,
+            [params.id]: newRowError,
+          };
+        }
+        return prev;
+      });
+    }
+  };
+
   return (
     <>
       {error && !loading && (
@@ -108,6 +134,7 @@ const GenericGrid = ({
             rowModesModel={rowModesModel}
             onRowModesModelChange={handleRowModesModelChange}
             onRowClick={handleRowClick}
+            onCellEditStart={handleCellEditStart}
             error={error} // error は DataGrid 自身も使うので渡す
             columnHeaderHeight={50} // ヘッダーの高さをプロパティで指定
             // 削除時のチェックボックス処理
@@ -117,17 +144,53 @@ const GenericGrid = ({
             }}
             //行更新時の処理
             processRowUpdate={(newRow, oldRow) => {
-              // 1. 既存行なら更新フラグを立てる
-              if (!oldRow.isNew) {
-                newRow.isUpdate = true;
-              }
-
-              // 2. ステートに反映
-              setRows((prev) =>
-                prev.map((r) => (r.id === oldRow.id ? newRow : r))
+              // 変更があったフィールドを抽出
+              const changedFields = Object.keys(newRow).filter(key => 
+                key !== 'isUpdate' && key !== 'isNew' && newRow[key] !== oldRow[key]
               );
 
-              return newRow;
+              if (changedFields.length > 0) {
+                // 1. 変更があったフィールドのエラーを状態から削除
+                if (setRowErrors) {
+                  setRowErrors((prev) => {
+                    const rowError = prev[newRow.id];
+                    if (!rowError) return prev;
+                    
+                    const newRowError = { ...rowError };
+                    let hasErrorToRemove = false;
+                    
+                    changedFields.forEach(field => {
+                      if (newRowError[field]) {
+                        delete newRowError[field];
+                        hasErrorToRemove = true;
+                      }
+                    });
+
+                    if (!hasErrorToRemove) return prev;
+
+                    const next = { ...prev };
+                    if (Object.keys(newRowError).length === 0) {
+                      delete next[newRow.id];
+                    } else {
+                      next[newRow.id] = newRowError;
+                    }
+                    return next;
+                  });
+                }
+
+                // 2. 既存行かつ実際に変更があった場合のみ更新フラグを立てる
+                if (!oldRow.isNew) {
+                  newRow.isUpdate = true;
+                }
+                // 3. ステートに反映
+                setRows((prev) =>
+                  prev.map((r) => (r.id === oldRow.id ? newRow : r))
+                );
+                return newRow;
+              }
+
+              // 変更がない場合は元の行をそのまま返す
+              return oldRow;
             }}
             getRowClassName={(params) => {
               return params.row.isNew || params.row.isUpdate ? 'row-unsaved' : '';

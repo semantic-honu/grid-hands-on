@@ -161,6 +161,7 @@ export const ReviewListSection = ({ bookId }) => {
     error,
     loading,
     setRows: setReviews,
+    setRowErrors,
     useSaveData,
     useDeleteData,
     setSelectedIds,
